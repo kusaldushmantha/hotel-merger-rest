@@ -1,0 +1,22 @@
+ -- FUNCTIONAL --
+ 1. Merge hotel data from different suppliers
+ 2. Parse and clean dirty data
+ 3. Select what you think is the best data to deliver using some simple rules
+ 4. Deliver it via an API endpoint by you which allows us to query the hotels data with some simple filtering
+ 5. Endpoint needs to accept following parameters: destination, hotels
+ 6. When requested, the server needs to fetch the results filtered in either option:
+        hotels: based on a list of hotel IDs given
+        destination: based on a given destination ID
+ 7. Deduplicate hotel results
+
+
+ -- NON-FUNCTIONAL --
+ 1. Performance decision related to Procuring the data and Delivering the data
+ 2. Design for scalability, performance and robustness
+ 3. Deployment and testing pipelines
+
+
+ -- CONSIDERATIONS --
+1. Evaluation and decisions on data cleaning & selecting the best data
+2. Solutions design
+3. Tests
