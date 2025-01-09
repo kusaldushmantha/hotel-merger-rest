@@ -1,5 +1,6 @@
 package com.codingchallenge.hoteldatamerger.hotelresultcollector.suppliers.patagonia;
 
+import com.codingchallenge.hoteldatamerger.hotelresultcollector.suppliers.SupplierHotel;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +12,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class PatagoniaHotelResult {
+public class PatagoniaHotelResult implements SupplierHotel {
     @JsonProperty("id")
     private String ID;
 

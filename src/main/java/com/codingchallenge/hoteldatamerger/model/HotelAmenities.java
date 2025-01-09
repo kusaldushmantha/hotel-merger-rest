@@ -1,4 +1,4 @@
-package com.codingchallenge.hoteldatamerger.hotelresultcollector.suppliers.paperflies;
+package com.codingchallenge.hoteldatamerger.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class PaperfliesHotelAmenities {
+public class HotelAmenities {
     @JsonProperty("general")
     private List<String> general;
 

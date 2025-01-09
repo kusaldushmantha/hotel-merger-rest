@@ -14,10 +14,6 @@ public class HTTPClient {
 
     private final Duration timeout;
 
-    public HTTPClient() {
-        this.timeout = Duration.ofSeconds(5); // Default timeout set to 5 sec.
-    }
-
     public HTTPClient(Duration timeout) {
         this.timeout = timeout;
     }

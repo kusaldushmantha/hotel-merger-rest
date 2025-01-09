@@ -1,5 +1,6 @@
 package com.codingchallenge.hoteldatamerger.hotelresultcollector.suppliers.acme;
 
+import com.codingchallenge.hoteldatamerger.hotelresultcollector.suppliers.SupplierHotel;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +12,7 @@ import java.util.List;
 */
 @Getter
 @Setter
-public class AcmeHotelResult {
+public class AcmeHotelResult implements SupplierHotel {
     @JsonProperty("Id")
     private String ID;
 

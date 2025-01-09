@@ -1,4 +1,4 @@
-package com.codingchallenge.hoteldatamerger.hotelresultcollector.suppliers.patagonia;
+package com.codingchallenge.hoteldatamerger.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -6,9 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PatagoniaHotelImage {
-    @JsonProperty("url")
-    private String url;
+public class HotelImage {
+    @JsonProperty("link")
+    private String link;
 
     @JsonProperty("description")
     private String description;
