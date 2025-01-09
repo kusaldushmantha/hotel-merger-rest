@@ -50,11 +50,6 @@ public class HotelService {
     }
 
     private Map<String, List<SupplierHotel>> collectHotelResultsFromSuppliers() {
-        // Lists to collect supplier results
-        List<AcmeHotelResult> acmeHotelResults = new ArrayList<>();
-        List<PaperfliesHotelResult> paperfliesHotelResults = new ArrayList<>();
-        List<PatagoniaHotelResult> patagoniaHotelResults = new ArrayList<>();
-
         // Map to collect hotel results based on the hotel ID.
         Map<String, List<SupplierHotel>> resultsMap = new HashMap<>();
 
@@ -76,9 +71,27 @@ public class HotelService {
 
                     // collect the results based on result type
                     switch (result) {
-                        case AcmeHotelResult _ -> acmeHotelResults.addAll(responseBody);
-                        case PaperfliesHotelResult _ -> paperfliesHotelResults.addAll(responseBody);
-                        case PatagoniaHotelResult _ -> patagoniaHotelResults.addAll(responseBody);
+                        case AcmeHotelResult _ -> {
+                            // Add AcmeHotelResults to the map
+                            for (Object hotelResult : responseBody) {
+                                AcmeHotelResult acmeHotelResult = (AcmeHotelResult)hotelResult;
+                                resultsMap.computeIfAbsent(acmeHotelResult.getID(), _ -> new ArrayList<>()).add(acmeHotelResult);
+                            }
+                        }
+                        case PaperfliesHotelResult _ -> {
+                            // Add PaperfliesHotelResults to the map
+                            for (Object hotelResult : responseBody) {
+                                PaperfliesHotelResult paperfliesHotelResult = (PaperfliesHotelResult)hotelResult;
+                                resultsMap.computeIfAbsent(paperfliesHotelResult.getID(), _ -> new ArrayList<>()).add(paperfliesHotelResult);
+                            }
+                        }
+                        case PatagoniaHotelResult _ -> {
+                            // Add PatagoniaHotelResults to the map
+                            for (Object hotelResult : responseBody) {
+                                PatagoniaHotelResult patagoniaHotelResult = (PatagoniaHotelResult)hotelResult;
+                                resultsMap.computeIfAbsent(patagoniaHotelResult.getID(), _ -> new ArrayList<>()).add(patagoniaHotelResult);
+                            }
+                        }
                         case null, default -> {
                             LOGGER.log(Level.WARNING, "unknown response object");
                         }
@@ -91,21 +104,6 @@ public class HotelService {
 
         // Wait for all requests to complete
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-
-        // Add AcmeHotelResults to the map
-        for (AcmeHotelResult result : acmeHotelResults) {
-            resultsMap.computeIfAbsent(result.getID(), _ -> new ArrayList<>()).add(result);
-        }
-
-        // Add PaperfliesHotelResults to the map
-        for (PaperfliesHotelResult result : paperfliesHotelResults) {
-            resultsMap.computeIfAbsent(result.getID(), _ -> new ArrayList<>()).add(result);
-        }
-
-        // Add PatagoniaHotelResults to the map
-        for (PatagoniaHotelResult result : patagoniaHotelResults) {
-            resultsMap.computeIfAbsent(result.getID(), _ -> new ArrayList<>()).add(result);
-        }
 
         return resultsMap;
     }
