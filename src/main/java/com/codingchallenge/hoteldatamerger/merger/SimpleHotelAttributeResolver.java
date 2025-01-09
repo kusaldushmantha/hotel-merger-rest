@@ -25,7 +25,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
             switch (hotel) {
                 case AcmeHotelResult h -> acmeHotelResult = h;
                 case PaperfliesHotelResult h -> paperfliesHotelResult = h;
-                case PatagoniaHotelResult h -> patagoniaHotelResult = h
+                case PatagoniaHotelResult h -> patagoniaHotelResult = h;
                 case null, default -> {
                     LOGGER.log(Level.WARNING, "unknown response object");
                 }
