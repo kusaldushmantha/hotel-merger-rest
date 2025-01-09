@@ -10,7 +10,7 @@ public class HotelResultMergeProcessor {
         this.attributeResolver = attributeResolver;
     }
 
-    public HotelResult mergeDetails(){
+    public HotelResult mergeDetails() {
         HotelResult result = new HotelResult();
 
         result.setId(this.attributeResolver.resolveId());

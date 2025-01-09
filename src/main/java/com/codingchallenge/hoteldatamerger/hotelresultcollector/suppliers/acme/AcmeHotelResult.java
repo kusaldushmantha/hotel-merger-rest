@@ -8,8 +8,8 @@ import lombok.Setter;
 import java.util.List;
 
 /*
-* AcmeHotelResult is the entity representing the JSON response from Acme supplier
-*/
+ * AcmeHotelResult is the entity representing the JSON response from Acme supplier
+ */
 @Getter
 @Setter
 public class AcmeHotelResult implements SupplierHotel {

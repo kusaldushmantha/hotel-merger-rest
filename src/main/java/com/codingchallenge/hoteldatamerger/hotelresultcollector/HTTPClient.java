@@ -31,7 +31,7 @@ public class HTTPClient {
             HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
             // downstream server error.
-            if(response.statusCode() != HttpStatus.OK.value()) {
+            if (response.statusCode() != HttpStatus.OK.value()) {
                 throw new HttpServerErrorException(HttpStatus.valueOf(response.statusCode()), "server error");
             }
             return response;

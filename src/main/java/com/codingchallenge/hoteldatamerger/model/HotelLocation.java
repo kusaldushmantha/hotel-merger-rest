@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 public class HotelLocation {
     @JsonProperty("lat")
-    private float latitude;
+    private float lat;
 
     @JsonProperty("lng")
     private float lng;
