@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 // helper class to sanitize inputs
-public class Sanitize {
+public class InputSanitizer {
 
     public static List<String> sanitizeStringList(List<String> str) {
         if (str == null || str.isEmpty()) {

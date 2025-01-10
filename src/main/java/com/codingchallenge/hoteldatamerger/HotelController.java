@@ -1,7 +1,7 @@
 package com.codingchallenge.hoteldatamerger;
 
 import com.codingchallenge.hoteldatamerger.model.HotelResult;
-import com.codingchallenge.hoteldatamerger.sanitizer.Sanitize;
+import com.codingchallenge.hoteldatamerger.sanitizer.InputSanitizer;
 import com.codingchallenge.hoteldatamerger.service.HotelService;
 import com.codingchallenge.hoteldatamerger.service.PaginatedHotelResponse;
 import org.springframework.hateoas.EntityModel;
@@ -29,8 +29,8 @@ public class HotelController {
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "limit", defaultValue = "10") int limit) {
 
-        List<String> sanitizedDestinationIDs = Sanitize.sanitizeStringList(destinations);
-        List<String> sanitizedHotelIDs = Sanitize.sanitizeStringList(hotelIDs);
+        List<String> sanitizedDestinationIDs = InputSanitizer.sanitizeStringList(destinations);
+        List<String> sanitizedHotelIDs = InputSanitizer.sanitizeStringList(hotelIDs);
 
         // Get paginated results
         return hotelService.getHotels(sanitizedDestinationIDs, sanitizedHotelIDs, limit, offset);
@@ -38,11 +38,14 @@ public class HotelController {
 
     @GetMapping("/{hotelID}")
     public EntityModel<HotelResult> getHotelById(@PathVariable String hotelID) {
+        if (hotelID == null || hotelID.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mandatory hotel id not provided");
+        }
         // Fetch hotel by its ID
         HotelResult hotel = hotelService.getHotelById(hotelID);
 
         if (hotel == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Hotel not found with id: " + hotelID);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Hotel not found for id: " + hotelID);
         }
 
         EntityModel<HotelResult> hotelModel = EntityModel.of(hotel);
