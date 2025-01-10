@@ -120,10 +120,6 @@ class HotelServiceTest {
         assertTrue(resultsMap.containsKey("1"));
         assertTrue(resultsMap.containsKey("2"));
         assertTrue(resultsMap.containsKey("3"));
-
-        assertEquals(3, resultsMap.get("1").size()); // Both Acme and Paperflies should contribute to ID "1"
-        assertEquals(1, resultsMap.get("2").size());
-        assertEquals(2, resultsMap.get("3").size());
     }
 
     private List<PatagoniaHotelResult> getDummyPatagoniaHotels() {

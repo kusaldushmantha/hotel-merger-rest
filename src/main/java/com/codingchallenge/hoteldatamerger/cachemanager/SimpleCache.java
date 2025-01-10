@@ -11,9 +11,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component
 public class SimpleCache<K, V> implements Cache<K, V> {
+    private static final Logger LOGGER = Logger.getLogger(SimpleCache.class.getName());
 
     private final Map<K, V> cache;
     private final int maxSize; // to limit the entries in the cache
@@ -28,11 +31,12 @@ public class SimpleCache<K, V> implements Cache<K, V> {
 
         // Schedule a task to clear the cache every `clearIntervalMinutes`
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        LOGGER.log(Level.INFO, "Simple cache started. auto evict all keys every " + clearIntervalMinutes + " mins");
         scheduler.scheduleAtFixedRate(() -> {
             lock.writeLock().lock();
             try {
                 clear();
-                System.out.println("Cache cleared!");
+                LOGGER.log(Level.INFO, "Simple cache cleared");
             } finally {
                 lock.writeLock().unlock();
             }
