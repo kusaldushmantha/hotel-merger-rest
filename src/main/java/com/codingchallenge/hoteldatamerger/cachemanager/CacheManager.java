@@ -29,7 +29,7 @@ public class CacheManager {
     }
 
     // Build the cache key based on destinationIDs and hotelIDs
-    private String buildCacheKey(List<String> destinationIDs, List<String> hotelIDs) {
+    String buildCacheKey(List<String> destinationIDs, List<String> hotelIDs) {
         String destinationKey = (destinationIDs == null || destinationIDs.isEmpty()) ? "all" : String.join("_", destinationIDs.toString());
         String hotelKey = (hotelIDs == null || hotelIDs.isEmpty()) ? "all" : String.join("_", hotelIDs.toString());
         return "DEST:::" + destinationKey + "|HTL:::" + hotelKey;

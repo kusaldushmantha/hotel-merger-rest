@@ -251,7 +251,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
                         if (acmeHotelResult.getFacilities() != null) {
                             for (String ga : acmeHotelResult.getFacilities()) {
                                 String key = getKey(ga);
-                                if (!generalAmenities.contains(key) && !roomAmenities.add(key)) {
+                                if (!generalAmenities.contains(key) && !roomAmenities.contains(key)) {
                                     generalAmenities.add(key);
                                     amenities.getGeneral().add(StringUtils.capitalize(ga.strip()));
                                 }
@@ -264,7 +264,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
                         if (patagoniaHotelResult.getAmenities() != null) {
                             for (String ga : patagoniaHotelResult.getAmenities()) {
                                 String key = getKey(ga);
-                                if (!generalAmenities.contains(key) && !roomAmenities.add(key)) {
+                                if (!generalAmenities.contains(key) && !roomAmenities.contains(key)) {
                                     roomAmenities.add(key);
                                     amenities.getRoom().add(StringUtils.capitalize(ga.strip()));
                                 }
@@ -415,6 +415,6 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
                 sb.append(c);
             }
         }
-        return sb.toString();
+        return sb.toString().toLowerCase();
     }
 }
