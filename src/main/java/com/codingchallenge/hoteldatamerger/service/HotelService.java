@@ -1,5 +1,6 @@
 package com.codingchallenge.hoteldatamerger.service;
 
+import com.codingchallenge.hoteldatamerger.cachemanager.CacheManager;
 import com.codingchallenge.hoteldatamerger.hotelresultcollector.HotelResultCollector;
 import com.codingchallenge.hoteldatamerger.hotelresultcollector.suppliers.SupplierHotel;
 import com.codingchallenge.hoteldatamerger.hotelresultcollector.suppliers.acme.AcmeHotelResult;
@@ -13,10 +14,7 @@ import com.codingchallenge.hoteldatamerger.model.HotelResult;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -31,14 +29,30 @@ public class HotelService {
 
     private final List<HotelResultCollector> hotelResultCollectors;
     private final ExecutorService threadPool;
+    // read-through cache to cache results
+    private final CacheManager cacheManager;
 
-    public HotelService(List<HotelResultCollector> hotelResultCollectors) {
+    public HotelService(List<HotelResultCollector> hotelResultCollectors, CacheManager cacheManager) {
         this.hotelResultCollectors = hotelResultCollectors;
+        this.cacheManager = cacheManager;
         this.threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE); // limit the number of threads created by using a thread pool
     }
 
+    public List<HotelResult> getHotels(Set<String> destinationIDs, Set<String> hotelIDs) {
+        List<HotelResult> result = this.cacheManager.getFilteredResults(destinationIDs, hotelIDs);
+        if (result == null) {
+            // cache miss. re-cache in the sync flow for simplicity
+            result = getAllMergedHotels().stream()
+                    .filter(hotel -> (destinationIDs == null || destinationIDs.isEmpty() || destinationIDs.contains(String.valueOf(hotel.getDestinationId()))) &&
+                            (hotelIDs == null || hotelIDs.isEmpty() || hotelIDs.contains(hotel.getId())))
+                    .toList();
+            this.cacheManager.addFilteredResult(destinationIDs, hotelIDs, result);
+        }
+        return result;
+    }
+
     // converts supplier specific hotel results to a common format by merging
-    public List<HotelResult> getAllMergedHotels() {
+    private List<HotelResult> getAllMergedHotels() {
         // map to collect hotel ID and all supplier hotels for the same hotel id
         Map<String, List<SupplierHotel>> hotelIDSupplierHotelMap = collectHotelResultsFromSuppliers();
         // map to collect merged locations for destination id
@@ -134,8 +148,6 @@ public class HotelService {
                 // acme hotels are the only ones providing city
                 if (acmeHotelResult != null && acmeHotelResult.getCity() != null) {
                     location.setCity(StringUtils.capitalize(acmeHotelResult.getCity()));
-                } else {
-                    location.setCity("");
                 }
 
                 // get the country from paperflies or acme.
