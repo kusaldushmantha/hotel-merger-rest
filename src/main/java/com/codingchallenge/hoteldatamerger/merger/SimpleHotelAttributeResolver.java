@@ -27,11 +27,9 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
     private PatagoniaHotelResult patagoniaHotelResult;
     private PaperfliesHotelResult paperfliesHotelResult;
 
-    private final Map<Integer, HotelLocation> locationMap;
     private final List<SupplierHotel> supplierHotels;
 
-    public SimpleHotelAttributeResolver(List<SupplierHotel> hotels, Map<Integer, HotelLocation> locationsMap) {
-        this.locationMap = locationsMap;
+    public SimpleHotelAttributeResolver(List<SupplierHotel> hotels) {
         this.supplierHotels = hotels;
         this.resolveTypes();
     }
@@ -106,7 +104,53 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
 
     @Override
     public HotelLocation resolveLocation() {
-        return this.locationMap.get(resolveDestinationId());
+        HotelLocation location = new HotelLocation();
+
+        // get lat/long. priority patagonia hotels
+        if (patagoniaHotelResult != null) {
+            if (patagoniaHotelResult.getLatitude() != 0) {
+                location.setLat(patagoniaHotelResult.getLatitude());
+            }
+            if (patagoniaHotelResult.getLongitude() != 0) {
+                location.setLng(patagoniaHotelResult.getLongitude());
+            }
+            if (patagoniaHotelResult.getAddress() != null && !patagoniaHotelResult.getAddress().isBlank()) {
+                location.setAddress(StringUtils.capitalize(patagoniaHotelResult.getAddress()));
+            }
+        }
+        // if address not set by patagonia hotels, try paperflies hotel
+        if (paperfliesHotelResult != null) {
+            if (paperfliesHotelResult.getLocation() != null) {
+                if (location.getAddress() == null && paperfliesHotelResult.getLocation().getAddress() != null && !paperfliesHotelResult.getLocation().getAddress().isBlank()) {
+                    location.setAddress(StringUtils.capitalize(paperfliesHotelResult.getLocation().getAddress()));
+                }
+                if (paperfliesHotelResult.getLocation().getCountry() != null && !paperfliesHotelResult.getLocation().getCountry().isBlank()) {
+                    location.setCountry(StringUtils.capitalize(paperfliesHotelResult.getLocation().getCountry()));
+                }
+            }
+        }
+
+        // try acme lat/log for missing coordinates
+        if (acmeHotelResult != null) {
+            if (location.getLat() == 0 && acmeHotelResult.getLatitude() != 0) {
+                location.setLat(acmeHotelResult.getLatitude());
+            }
+            if (location.getLng() == 0 && acmeHotelResult.getLongitude() != 0) {
+                location.setLng(acmeHotelResult.getLongitude());
+            }
+            if (location.getAddress() == null && acmeHotelResult.getAddress() != null && !acmeHotelResult.getAddress().isBlank()) {
+                // if address is not set. try with acme hotels.
+                location.setAddress(StringUtils.capitalize(acmeHotelResult.getAddress()));
+            }
+            if (acmeHotelResult.getCity() != null) {
+                location.setCity(StringUtils.capitalize(acmeHotelResult.getCity()));
+            }
+            if (location.getCountry() == null && acmeHotelResult.getCountry() != null) {
+                location.setCountry(StringUtils.capitalize(acmeHotelResult.getCountry()));
+            }
+        }
+
+        return location;
     }
 
     @Override
