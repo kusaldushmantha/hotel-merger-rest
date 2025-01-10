@@ -9,9 +9,7 @@ import com.codingchallenge.hoteldatamerger.hotelresultcollector.suppliers.patago
 import com.codingchallenge.hoteldatamerger.merger.HotelAttributeResolver;
 import com.codingchallenge.hoteldatamerger.merger.HotelResultMergeProcessor;
 import com.codingchallenge.hoteldatamerger.merger.SimpleHotelAttributeResolver;
-import com.codingchallenge.hoteldatamerger.model.HotelLocation;
 import com.codingchallenge.hoteldatamerger.model.HotelResult;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -77,11 +75,6 @@ public class HotelService {
         }
 
         return resultList;
-    }
-
-    public Map<String, HotelLocation> mergeHotelLocations(Map<String, List<SupplierHotel>> supplierHotels) {
-        Map<String, HotelLocation> result = new HashMap<>();
-        return result;
     }
 
     private Map<String, List<SupplierHotel>> collectHotelResultsFromSuppliers() {
