@@ -32,7 +32,7 @@ public class HotelController {
         List<String> sanitizedDestinationIDs = InputSanitizer.sanitizeStringList(destinations);
         List<String> sanitizedHotelIDs = InputSanitizer.sanitizeStringList(hotelIDs);
 
-        // Get paginated results
+        // Get paginated results supporting hateaos
         return hotelService.getHotels(sanitizedDestinationIDs, sanitizedHotelIDs, limit, offset);
     }
 
@@ -48,6 +48,7 @@ public class HotelController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Hotel not found for id: " + hotelID);
         }
 
+        // add self links supporting hateaos
         EntityModel<HotelResult> hotelModel = EntityModel.of(hotel);
         hotelModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(HotelController.class)
                 .getHotelById(hotelID)).withSelfRel());
