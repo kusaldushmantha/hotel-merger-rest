@@ -3,12 +3,13 @@ package com.codingchallenge.hoteldatamerger;
 import com.codingchallenge.hoteldatamerger.model.HotelResult;
 import com.codingchallenge.hoteldatamerger.sanitizer.Sanitize;
 import com.codingchallenge.hoteldatamerger.service.HotelService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import com.codingchallenge.hoteldatamerger.service.PaginatedHotelResponse;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashSet;
 import java.util.List;
 
 @RestController
@@ -22,13 +23,32 @@ public class HotelController {
     }
 
     @GetMapping
-    public List<HotelResult> getHotels(
+    public PaginatedHotelResponse getHotels(
             @RequestParam(value = "destinationIDs", required = false) List<String> destinations,
-            @RequestParam(value = "hotelIDs", required = false) List<String> hotelIDs) {
+            @RequestParam(value = "hotelIDs", required = false) List<String> hotelIDs,
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "limit", defaultValue = "10") int limit) {
 
         List<String> sanitizedDestinationIDs = Sanitize.sanitizeStringList(destinations);
         List<String> sanitizedHotelIDs = Sanitize.sanitizeStringList(hotelIDs);
 
-        return this.hotelService.getHotels(new HashSet<>(sanitizedDestinationIDs), new HashSet<>(sanitizedHotelIDs));
+        // Get paginated results
+        return hotelService.getHotels(sanitizedDestinationIDs, sanitizedHotelIDs, limit, offset);
+    }
+
+    @GetMapping("/{hotelID}")
+    public EntityModel<HotelResult> getHotelById(@PathVariable String hotelID) {
+        // Fetch hotel by its ID
+        HotelResult hotel = hotelService.getHotelById(hotelID);
+
+        if (hotel == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Hotel not found with id: " + hotelID);
+        }
+
+        EntityModel<HotelResult> hotelModel = EntityModel.of(hotel);
+        hotelModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(HotelController.class)
+                .getHotelById(hotelID)).withSelfRel());
+
+        return hotelModel;
     }
 }

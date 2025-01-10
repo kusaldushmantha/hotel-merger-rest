@@ -12,7 +12,9 @@ import com.codingchallenge.hoteldatamerger.merger.SimpleHotelAttributeResolver;
 import com.codingchallenge.hoteldatamerger.model.HotelResult;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -36,7 +38,7 @@ public class HotelService {
         this.threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE); // limit the number of threads created by using a thread pool
     }
 
-    public List<HotelResult> getHotels(Set<String> destinationIDs, Set<String> hotelIDs) {
+    public PaginatedHotelResponse getHotels(List<String> destinationIDs, List<String> hotelIDs, int limit, int offset) {
         List<HotelResult> result = this.cacheManager.getFilteredResults(destinationIDs, hotelIDs);
         if (result == null) {
             // cache miss. re-cache in the sync flow for simplicity
@@ -46,7 +48,41 @@ public class HotelService {
                     .toList();
             this.cacheManager.addFilteredResult(destinationIDs, hotelIDs, result);
         }
-        return result;
+
+        // Paginate the result manually using subList
+        int start = Math.min(offset, result.size());
+        int end = Math.min(start + limit, result.size());
+        List<HotelResult> paginatedResults = result.subList(start, end);
+
+        // Use custom pagination for simplicity
+        PaginatedHotelResponse response = new PaginatedHotelResponse(paginatedResults, result.size(), limit, offset);
+
+        int totalCount = result.size();
+        if (end < totalCount) {
+            response.addNextLink(limit, offset, destinationIDs, hotelIDs);
+        }
+        if (start > 0) {
+            response.addPrevLink(limit, offset, destinationIDs, hotelIDs);
+        }
+
+        return response;
+    }
+
+    public HotelResult getHotelById(String hotelID) {
+        List<String> hotelIDs = List.of(hotelID);
+        List<HotelResult> result = this.cacheManager.getFilteredResults(new ArrayList<>(), hotelIDs);
+        if (result == null) {
+            // cache miss. re-cache in the sync flow for simplicity
+            result = getAllMergedHotels().stream()
+                    .filter(hotel -> hotelIDs.contains(hotel.getId()))
+                    .toList();
+            this.cacheManager.addFilteredResult(new ArrayList<>(), hotelIDs, result);
+        }
+        if (result.isEmpty()) {
+            // hotel by the provided id
+            return null;
+        }
+        return result.getFirst();
     }
 
     // converts supplier specific hotel results to a common format by merging

@@ -1,7 +1,9 @@
 package com.codingchallenge.hoteldatamerger.sanitizer;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 // helper class to sanitize inputs
 public class Sanitize {
@@ -10,13 +12,13 @@ public class Sanitize {
         if (str == null || str.isEmpty()) {
             return new ArrayList<>();
         }
-        List<String> result = new ArrayList<>();
+        Set<String> result = new HashSet<>();
         for (String s : str) {
             String stripped = s.strip().replaceAll("\\s+", "");
             if (!stripped.isBlank()) {
                 result.add(stripped);
             }
         }
-        return result;
+        return new ArrayList<>(result);
     }
 }

@@ -34,6 +34,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
 
     @Override
     public String resolveId() {
+        // define the priority order for supplier results
         List<Class<?>> priorityOrder = List.of(PatagoniaHotelResult.class, PaperfliesHotelResult.class, AcmeHotelResult.class);
 
         for (Class<?> prioritizedType : priorityOrder) {

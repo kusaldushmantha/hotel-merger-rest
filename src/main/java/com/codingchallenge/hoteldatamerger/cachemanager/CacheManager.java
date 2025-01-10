@@ -4,7 +4,6 @@ import com.codingchallenge.hoteldatamerger.model.HotelResult;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class CacheManager {
@@ -15,7 +14,7 @@ public class CacheManager {
     }
 
     // Get filtered results with caching
-    public List<HotelResult> getFilteredResults(Set<String> destinationIDs, Set<String> hotelIDs) {
+    public List<HotelResult> getFilteredResults(List<String> destinationIDs, List<String> hotelIDs) {
         String cacheKey = buildCacheKey(destinationIDs, hotelIDs);
         if (cache.get(cacheKey) != null) {
             return cache.get(cacheKey);
@@ -24,13 +23,13 @@ public class CacheManager {
     }
 
     // Add results to cache
-    public void addFilteredResult(Set<String> destinationIDs, Set<String> hotelIDs, List<HotelResult> result) {
+    public void addFilteredResult(List<String> destinationIDs, List<String> hotelIDs, List<HotelResult> result) {
         String cacheKey = buildCacheKey(destinationIDs, hotelIDs);
         this.cache.put(cacheKey, result);
     }
 
     // Build the cache key based on destinationIDs and hotelIDs
-    private String buildCacheKey(Set<String> destinationIDs, Set<String> hotelIDs) {
+    private String buildCacheKey(List<String> destinationIDs, List<String> hotelIDs) {
         String destinationKey = (destinationIDs == null || destinationIDs.isEmpty()) ? "all" : String.join("_", destinationIDs.toString());
         String hotelKey = (hotelIDs == null || hotelIDs.isEmpty()) ? "all" : String.join("_", hotelIDs.toString());
         return "DEST:::" + destinationKey + "|HTL:::" + hotelKey;
