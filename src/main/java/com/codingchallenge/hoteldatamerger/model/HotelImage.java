@@ -22,7 +22,8 @@ public class HotelImage {
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof HotelImage that)) return false;
-        return Objects.equals(getLink(), that.getLink()) && Objects.equals(getDescription(), that.getDescription());
+        return getLink().strip().equals(that.getLink())
+                && getDescription().strip().replaceAll("\\s+", "").equalsIgnoreCase(that.getDescription().strip().replaceAll("\\s+", ""));
     }
 
     @Override

@@ -10,15 +10,16 @@ import com.codingchallenge.hoteldatamerger.model.HotelAmenities;
 import com.codingchallenge.hoteldatamerger.model.HotelImage;
 import com.codingchallenge.hoteldatamerger.model.HotelImages;
 import com.codingchallenge.hoteldatamerger.model.HotelLocation;
-import org.apache.commons.text.WordUtils;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/*
+ * SimpleHotelAttributeResolver represents a simple merge logic based on attributes from different
+ * suppliers
+ * */
 public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
     private static final Logger LOGGER = Logger.getLogger(SimpleHotelAttributeResolver.class.getName());
 
@@ -26,9 +27,18 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
     private PatagoniaHotelResult patagoniaHotelResult;
     private PaperfliesHotelResult paperfliesHotelResult;
 
-    public SimpleHotelAttributeResolver(List<SupplierHotel> hotels) {
+    private final Map<Integer, HotelLocation> locationMap;
+    private final List<SupplierHotel> supplierHotels;
+
+    public SimpleHotelAttributeResolver(List<SupplierHotel> hotels, Map<Integer, HotelLocation> locationsMap) {
+        this.locationMap = locationsMap;
+        this.supplierHotels = hotels;
+        this.resolveTypes();
+    }
+
+    public void resolveTypes() throws IllegalArgumentException {
         // this list contains only one hotel per supplier
-        for (SupplierHotel hotel : hotels) {
+        for (SupplierHotel hotel : this.supplierHotels) {
             switch (hotel) {
                 case AcmeHotelResult h -> acmeHotelResult = h;
                 case PaperfliesHotelResult h -> paperfliesHotelResult = h;
@@ -38,6 +48,11 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
                 }
             }
         }
+
+        // if the supplier hotel does not belong to any of the valid suppliers. return an exception.
+        if (acmeHotelResult == null && paperfliesHotelResult == null && patagoniaHotelResult == null) {
+            throw new IllegalArgumentException("cannot resolve hotels");
+        }
     }
 
     @Override
@@ -45,10 +60,14 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
         // at least one of the hotel result must be not-null
         if (acmeHotelResult != null) {
             return acmeHotelResult.getID();
-        } else if (patagoniaHotelResult != null) {
+        }
+        if (patagoniaHotelResult != null) {
             return patagoniaHotelResult.getID();
         }
-        return paperfliesHotelResult.getID();
+        if (paperfliesHotelResult != null) {
+            return paperfliesHotelResult.getID();
+        }
+        return "";
     }
 
     @Override
@@ -64,7 +83,10 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
         if (patagoniaHotelResult != null) {
             return patagoniaHotelResult.getDestination();
         }
-        return paperfliesHotelResult.getDestinationID();
+        if (paperfliesHotelResult != null) {
+            return paperfliesHotelResult.getDestinationID();
+        }
+        return -1;
     }
 
     @Override
@@ -84,62 +106,23 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
 
     @Override
     public HotelLocation resolveLocation() {
-        HotelLocation location = new HotelLocation();
-
-        // first priority should be given to patagonia hotels as their APIs provides the most complete location info
-        if (patagoniaHotelResult != null) {
-            if (patagoniaHotelResult.getLatitude() == 0) {
-                location.setLat(patagoniaHotelResult.getLatitude());
-            }
-            if (patagoniaHotelResult.getLongitude() == 0) {
-                location.setLng(patagoniaHotelResult.getLongitude());
-            }
-            if (patagoniaHotelResult.getAddress() != null && !patagoniaHotelResult.getAddress().isBlank()) {
-                location.setAddress(patagoniaHotelResult.getAddress().strip());
-            }
-        }
-        // second priority to paperflies hotels to fill address and country
-        if (paperfliesHotelResult != null && paperfliesHotelResult.getLocation() != null) {
-            if (paperfliesHotelResult.getLocation().getCountry() != null && !paperfliesHotelResult.getLocation().getCountry().isBlank()) {
-                location.setCountry(WordUtils.capitalizeFully(paperfliesHotelResult.getLocation().getCountry().strip()));
-            }
-            if ((location.getAddress() == null || location.getAddress().isBlank()) && (paperfliesHotelResult.getLocation().getAddress() != null && !paperfliesHotelResult.getLocation().getAddress().isBlank())) {
-                location.setAddress(paperfliesHotelResult.getLocation().getAddress().strip());
-            }
-        }
-        // fill remaining unfilled fields with acme hotels
-        if (acmeHotelResult != null) {
-            // only acme hotels provide a city
-            if (acmeHotelResult.getCity() != null && !acmeHotelResult.getCity().isBlank()) {
-                location.setCity(WordUtils.capitalizeFully(acmeHotelResult.getCity().strip()));
-            }
-            if (location.getCountry() == null || location.getCountry().isBlank()) {
-                location.setCountry(WordUtils.capitalizeFully(acmeHotelResult.getCountry().strip()));
-            }
-            if (location.getLat() == 0) {
-                location.setLat(acmeHotelResult.getLatitude());
-            }
-            if (location.getLng() == 0) {
-                location.setLat(acmeHotelResult.getLongitude());
-            }
-        }
-
-        return location;
+        return this.locationMap.get(resolveDestinationId());
     }
 
     @Override
     public String resolveDescription() {
-        // description with the highest details comes first
-        if (paperfliesHotelResult != null && paperfliesHotelResult.getDetails() != null && !paperfliesHotelResult.getDetails().isBlank()) {
-            return paperfliesHotelResult.getDetails().strip();
+        // description with the highest details will be returned
+        String description = "";
+        if (paperfliesHotelResult != null && paperfliesHotelResult.getDetails() != null && !paperfliesHotelResult.getDetails().isBlank() && description.length() < paperfliesHotelResult.getDetails().strip().length()) {
+            description = paperfliesHotelResult.getDetails().strip();
         }
-        if (patagoniaHotelResult != null && patagoniaHotelResult.getInfo() != null && !patagoniaHotelResult.getInfo().isBlank()) {
-            return patagoniaHotelResult.getInfo().strip();
+        if (patagoniaHotelResult != null && patagoniaHotelResult.getInfo() != null && !patagoniaHotelResult.getInfo().isBlank() && description.length() < patagoniaHotelResult.getInfo().strip().length()) {
+            description = patagoniaHotelResult.getInfo().strip();
         }
-        if (acmeHotelResult != null && acmeHotelResult.getDescription() != null && !acmeHotelResult.getDescription().isBlank()) {
-            return acmeHotelResult.getDescription().strip();
+        if (acmeHotelResult != null && acmeHotelResult.getDescription() != null && !acmeHotelResult.getDescription().isBlank() && description.length() < acmeHotelResult.getDescription().strip().length()) {
+            description = acmeHotelResult.getDescription().strip();
         }
-        return "";
+        return StringUtils.capitalize(description);
     }
 
     @Override
@@ -151,23 +134,23 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
         Set<String> generalAmenities = new HashSet<>();
         Set<String> roomAmenities = new HashSet<>();
 
-        // paperflies hotels have separate general and room amenities
+        // paperflies hotels have separate general and room amenities. give first priority to it
         if (paperfliesHotelResult != null && paperfliesHotelResult.getAmenities() != null) {
             if (paperfliesHotelResult.getAmenities().getGeneral() != null) {
                 for (String ga : paperfliesHotelResult.getAmenities().getGeneral()) {
-                    String key = getKey(ga);
+                    String key = getKey(ga); // deduplicate entries based on a generated key
                     if (!generalAmenities.contains(key)) {
                         generalAmenities.add(key);
-                        amenities.getGeneral().add(WordUtils.capitalizeFully(ga.strip()));
+                        amenities.getGeneral().add(StringUtils.capitalize(ga.strip()));
                     }
                 }
             }
             if (paperfliesHotelResult.getAmenities().getRoom() != null) {
                 for (String ra : paperfliesHotelResult.getAmenities().getRoom()) {
-                    String key = getKey(ra);
+                    String key = getKey(ra); // deduplicate entries based on a generated key
                     if (!roomAmenities.contains(key)) {
                         roomAmenities.add(key);
-                        amenities.getRoom().add(WordUtils.capitalizeFully(ra.strip()));
+                        amenities.getRoom().add(StringUtils.capitalize(ra.strip()));
                     }
                 }
             }
@@ -179,7 +162,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
                 String key = getKey(ga);
                 if (!generalAmenities.contains(key) && !roomAmenities.add(key)) {
                     roomAmenities.add(key);
-                    amenities.getRoom().add(WordUtils.capitalizeFully(ga.strip()));
+                    amenities.getRoom().add(StringUtils.capitalize(ga.strip()));
                 }
             }
         }
@@ -190,7 +173,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
                 String key = getKey(ga);
                 if (!generalAmenities.contains(key) && !roomAmenities.add(key)) {
                     generalAmenities.add(key);
-                    amenities.getGeneral().add(WordUtils.capitalizeFully(ga.strip()));
+                    amenities.getGeneral().add(StringUtils.capitalize(ga.strip()));
                 }
             }
         }
@@ -198,25 +181,15 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
         return amenities;
     }
 
-    private static String getKey(String ga) {
-        StringBuilder sb = new StringBuilder();
-        for (char c : ga.strip().toCharArray()) {
-            if (Character.isAlphabetic(c)) {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
-    }
-
     @Override
     public HotelImages resolveImages() {
         HotelImages images = new HotelImages();
 
-        List<HotelImage> siteImages = new ArrayList<>();
-        List<HotelImage> amenitiesImages = new ArrayList<>();
+        Set<HotelImage> siteImages = new HashSet<>();
+        Set<HotelImage> amenitiesImages = new HashSet<>();
         Set<HotelImage> roomImages = new HashSet<>();
 
-
+        // first priority paperflies as these hotels contain comprehensive image breakdown
         if (paperfliesHotelResult != null && paperfliesHotelResult.getImages() != null) {
             // extract site images available in paperflies hotels
             if (paperfliesHotelResult.getImages().getSite() != null) {
@@ -225,7 +198,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
                         // dirty data. ignore
                         continue;
                     }
-                    siteImages.add(new HotelImage(img.getLink().strip(), WordUtils.capitalizeFully(img.getCaption().strip())));
+                    siteImages.add(new HotelImage(img.getLink().strip(), StringUtils.capitalize(img.getCaption().strip())));
                 }
             }
             // extract room images and room types
@@ -235,7 +208,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
                         // dirty data. ignore
                         continue;
                     }
-                    roomImages.add(new HotelImage(img.getLink().strip(), WordUtils.capitalizeFully(img.getCaption().strip())));
+                    roomImages.add(new HotelImage(img.getLink().strip(), StringUtils.capitalize(img.getCaption().strip())));
                 }
             }
         }
@@ -248,7 +221,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
                         // dirty data. ignore
                         continue;
                     }
-                    amenitiesImages.add(new HotelImage(img.getUrl().strip(), WordUtils.capitalizeFully(img.getDescription().strip())));
+                    amenitiesImages.add(new HotelImage(img.getUrl().strip(), StringUtils.capitalize(img.getDescription().strip())));
                 }
             }
             // extract room images and room types
@@ -258,13 +231,13 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
                         // dirty data. ignore
                         continue;
                     }
-                    roomImages.add(new HotelImage(img.getUrl().strip(), WordUtils.capitalizeFully(img.getDescription().strip())));
+                    roomImages.add(new HotelImage(img.getUrl().strip(), StringUtils.capitalize(img.getDescription().strip())));
                 }
             }
         }
 
-        images.setSiteImages(siteImages);
-        images.setAmenitiesImages(amenitiesImages);
+        images.setSiteImages(new ArrayList<>(siteImages));
+        images.setAmenitiesImages(new ArrayList<>(amenitiesImages));
         images.setRoomImages(new ArrayList<>(roomImages));
 
         return images;
@@ -273,9 +246,24 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
     @Override
     public List<String> resolveBookingConditions() {
         // only paperflies hotels have booking conditions
-        if (paperfliesHotelResult != null && !paperfliesHotelResult.getBookingConditions().isEmpty()) {
-            return paperfliesHotelResult.getBookingConditions();
+        List<String> bookingConditions = new ArrayList<>();
+        if (paperfliesHotelResult != null && paperfliesHotelResult.getBookingConditions() != null && !paperfliesHotelResult.getBookingConditions().isEmpty()) {
+            for (String condition : paperfliesHotelResult.getBookingConditions()) {
+                bookingConditions.add(StringUtils.capitalize(condition));
+            }
         }
-        return new ArrayList<>();
+        return bookingConditions;
+    }
+
+
+    // This is used to deduplicate entries
+    private static String getKey(String ga) {
+        StringBuilder sb = new StringBuilder();
+        for (char c : ga.strip().toCharArray()) {
+            if (Character.isAlphabetic(c)) {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 }

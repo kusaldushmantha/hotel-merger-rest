@@ -10,6 +10,7 @@ public class HotelResultMergeProcessor {
         this.attributeResolver = attributeResolver;
     }
 
+    // resolves attributes based on the rules
     public HotelResult mergeDetails() {
         HotelResult result = new HotelResult();
 
