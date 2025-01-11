@@ -1,6 +1,6 @@
 package com.codingchallenge.hoteldatamerger.cachemanager;
 
-// simple cache interface
+// cache interface to be used by any cache implementation
 public interface Cache<K, V> {
     V get(K key);
 

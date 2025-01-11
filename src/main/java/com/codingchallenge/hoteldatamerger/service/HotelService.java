@@ -113,6 +113,7 @@ public class HotelService {
         return resultList;
     }
 
+    // collect hotels from different suppliers
     Map<String, List<SupplierHotel>> collectHotelResultsFromSuppliers() {
         // Map to collect hotel results concurrently based on the hotel ID.
         Map<String, List<SupplierHotel>> resultsMap = new ConcurrentHashMap<>();

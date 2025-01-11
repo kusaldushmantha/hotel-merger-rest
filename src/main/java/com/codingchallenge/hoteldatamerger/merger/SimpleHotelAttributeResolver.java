@@ -154,6 +154,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
                 }
                 switch (hotel) {
                     case AcmeHotelResult acmeHotelResult -> {
+                        // only set the lat and lng if they are not already set by other high priority suppliers
                         if (location.getLat() == 0 && acmeHotelResult.getLatitude() != 0) {
                             location.setLat(acmeHotelResult.getLatitude());
                         }
@@ -167,6 +168,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
                         if (acmeHotelResult.getCity() != null) {
                             location.setCity(StringUtils.capitalize(acmeHotelResult.getCity()));
                         }
+                        // only set the country if this is not already set by other high priority suppliers
                         if (location.getCountry() == null && acmeHotelResult.getCountry() != null) {
                             location.setCountry(StringUtils.capitalize(acmeHotelResult.getCountry()));
                         }
@@ -184,6 +186,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
                     }
                     case PaperfliesHotelResult paperfliesHotelResult -> {
                         if (paperfliesHotelResult.getLocation() != null) {
+                            // only set the address if this is not already set by other high priority suppliers
                             if (location.getAddress() == null && paperfliesHotelResult.getLocation().getAddress() != null && !paperfliesHotelResult.getLocation().getAddress().isBlank()) {
                                 location.setAddress(StringUtils.capitalize(paperfliesHotelResult.getLocation().getAddress()));
                             }

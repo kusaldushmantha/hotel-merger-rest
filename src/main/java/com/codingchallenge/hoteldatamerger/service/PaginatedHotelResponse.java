@@ -21,11 +21,12 @@ public class PaginatedHotelResponse {
     private Link prev;
 
     public PaginatedHotelResponse(List<HotelResult> hotels, int totalCount, int limit, int offset) {
+        // this loops runs only upto the max page size
         this.hotels = hotels.stream()
                 .map(hotelResult -> {
                     EntityModel<HotelResult> hotelModel = EntityModel.of(hotelResult);
                     hotelModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(HotelController.class)
-                            .getHotelById(hotelResult.getId())).withSelfRel());
+                            .getHotelById(hotelResult.getId())).withSelfRel()); // add self link to navigate to individual hotel
                     return hotelModel;
                 })
                 .toList();
@@ -35,6 +36,7 @@ public class PaginatedHotelResponse {
         this.offset = offset;
     }
 
+    // add next page link
     public void addNextLink(int limit, int offset, List<String> destinationIDs, List<String> hotelIDs) {
         int nextOffset = offset + limit;
         if (nextOffset < totalCount) {
@@ -44,7 +46,7 @@ public class PaginatedHotelResponse {
         }
     }
 
-    // Add previous link
+    // add previous page link
     public void addPrevLink(int limit, int offset, List<String> destinationIDs, List<String> hotelIDs) {
         int prevOffset = offset - limit;
         if (prevOffset >= 0) {

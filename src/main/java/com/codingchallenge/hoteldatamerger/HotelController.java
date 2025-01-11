@@ -38,9 +38,6 @@ public class HotelController {
 
     @GetMapping("/{hotelID}")
     public EntityModel<HotelResult> getHotelById(@PathVariable String hotelID) {
-        if (hotelID == null || hotelID.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mandatory hotel id not provided");
-        }
         // Fetch hotel by its ID
         HotelResult hotel = hotelService.getHotelById(hotelID);
 
