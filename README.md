@@ -31,25 +31,25 @@ merger API.
     * This cache has a default TTL of 5min for all entries and the entire cache will be wiped every 5mins.
     * Since the code follows dependency inversion, this cache can be replaced independently with a distributed cache
       like Redis for complex scenarios without changing the high-level cache consuming module logic.
-    * Since supplier endpoints does not provide a way to query a specific hotel / destination ID. Upon cache miss, all the hotels will be queried from the supplier.
+    * The supplier endpoints do not provide a way to query a specific hotel / destination ID. Upon cache miss, suppliers will be queried to get all results and re-merging will happen.
 
 
 * Pagination and filtering support added. Every request will get Max 10 results (configurable) along with other
   pagination meta information like total result count, current page, next / prev page links if applicable.
 
 
-* Parallel querying of suppliers to get the hotel responses using a simple global fixed size thread pool to reduce
+* Parallel querying of suppliers is used to get the hotel responses with a simple global fixed size thread pool to reduce
   overhead on individual thread creation and management per request.
 
 
-* External supplier querying has a configurable timeout of 5s. If the request exceeds 5s, then it will be timed out from this service and the response from only successful responses will be processed.
+* External supplier querying has a configurable timeout of 5s. If the external request does not complete within 5s, then it will be cancelled and only the successful responses will be processed.
 
 ### Scalability
 
-* The service is RESTful and stateless and scale independently as micro services if necessary.
+* The service is RESTful, stateless and can scale independently as a microservices if necessary.
 
 
-* The service is containerized with Docker to orchestrate with Kubernetes to allow autoscaling and auto recovery.
+* The service is containerized with Docker to orchestrate with Kubernetes to allow autoscaling and auto recovery if necessary.
 
 ### Robustness
 
@@ -59,7 +59,7 @@ merger API.
 * Input validation and sanitization is added to avoid unintentional or malicious behaviour.
 
 
-* Exception handlers and a global exception handler are added to catch and report any uncaught exception thus avoiding service crash.
+* Exception handlers and a global exception handler are added to catch and report any exception thus avoiding service crash.
 
 ## Assumptions
 
@@ -71,7 +71,7 @@ The following assumptions were made during the implementation of this service.
 * No inference of missing required response attributes. 
   * Default data type value will be returned in such cases.
 
-  * ex: If all the suppliers does not provide lat/lng values for a given hotel, then lat/lng values will NOT be inferred based on address or obtained by querying any 3rd party service. lat/lng will be set to 0.
+  * ex: If all the suppliers does not provide lat/lng values for a given hotel, then lat/lng values will NOT be inferred based on the address or obtained by querying any 3rd party service. lat/lng will be set to 0.
 
 
 * External supplier services API contracts are fixed.
@@ -107,7 +107,7 @@ This service is built using Maven, Spring Boot and Java v23. The service starts 
 ## Deployments and Endpoints
 
 ### Deployment
-* Build pipeline setup with one-click GitHub and DigitalOcean integration. Any commit to the repo will trigger a build and deploy. 
+* Build pipeline is setup with one-click GitHub and DigitalOcean integration. Any commit to the repo will trigger a build and deploy. 
 * NOTE: This deployment uses the lowest tier available and the start-up will be slower sometimes.
 
 ### Endpoints
@@ -123,4 +123,5 @@ Examples
 * Return all merged hotels: https://kusalk-hotel-merger-api-dbcnr.ondigitalocean.app/api/v1/hotels
 * Return hotels after filtering with `destinationIDs` : https://kusalk-hotel-merger-api-dbcnr.ondigitalocean.app/api/v1/hotels?destinationIDs=5432,1122
 * Return hotels after filtering with `hotelIDs` : https://kusalk-hotel-merger-api-dbcnr.ondigitalocean.app/api/v1/hotels?hotelIDs=SjyX,iJhz 
+* Returns a single specified hotel by ID : https://kusalk-hotel-merger-api-dbcnr.ondigitalocean.app/api/v1/hotels/SjyX
 * With limits and offsets : https://kusalk-hotel-merger-api-dbcnr.ondigitalocean.app/api/v1/hotels?hotelIDs=SjyX,iJhz&destinationIDs=5432,1122&limit=1&offset=1
