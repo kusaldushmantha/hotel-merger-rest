@@ -79,7 +79,7 @@ public class HotelService {
             this.cacheManager.addFilteredResult(new ArrayList<>(), hotelIDs, result);
         }
         if (result.isEmpty()) {
-            // hotel by the provided id
+            // no hotel with the provided id
             return null;
         }
         return result.getFirst();
@@ -115,7 +115,7 @@ public class HotelService {
 
     // collect hotels from different suppliers
     Map<String, List<SupplierHotel>> collectHotelResultsFromSuppliers() {
-        // Map to collect hotel results concurrently based on the hotel ID.
+        // Map to collect hotel results parallel based on the hotel ID.
         Map<String, List<SupplierHotel>> resultsMap = new ConcurrentHashMap<>();
 
         // Execute requests in parallel

@@ -14,7 +14,7 @@ public class InputSanitizer {
         }
         Set<String> result = new HashSet<>();
         for (String s : str) {
-            String stripped = s.strip().replaceAll("\\s+", "");
+            String stripped = s.strip();
             if (!stripped.isBlank()) {
                 result.add(stripped);
             }

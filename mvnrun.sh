@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Variables
 PROJECT_DIR=$(pwd)  # Current project directory
 TARGET_DIR="$PROJECT_DIR/target"  # Target directory
 

@@ -34,7 +34,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
 
     @Override
     public String resolveId() {
-        // define the priority order for supplier results
+        // define the priority order to consider when resolving for id
         List<Class<?>> priorityOrder = List.of(PatagoniaHotelResult.class, PaperfliesHotelResult.class, AcmeHotelResult.class);
 
         for (Class<?> prioritizedType : priorityOrder) {
@@ -70,7 +70,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
 
     @Override
     public int resolveDestinationId() {
-        // at least one of the hotel result must be not-null
+        // define the priority order to consider when resolving for destination id
         List<Class<?>> priorityOrder = List.of(AcmeHotelResult.class, PatagoniaHotelResult.class, PaperfliesHotelResult.class);
 
         for (Class<?> prioritizedType : priorityOrder) {
@@ -107,7 +107,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
 
     @Override
     public String resolveName() {
-        // at least one of the hotel result must be not-null
+        // define the priority order to consider when resolving name
         List<Class<?>> priorityOrder = List.of(AcmeHotelResult.class, PatagoniaHotelResult.class, PaperfliesHotelResult.class);
 
         for (Class<?> prioritizedType : priorityOrder) {
@@ -145,6 +145,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
     public HotelLocation resolveLocation() {
         HotelLocation location = new HotelLocation();
 
+        // define the priority order to consider when resolving for location
         List<Class<?>> priorityOrder = List.of(PatagoniaHotelResult.class, PaperfliesHotelResult.class, AcmeHotelResult.class);
 
         for (Class<?> prioritizedType : priorityOrder) {
@@ -240,6 +241,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
         Set<String> generalAmenities = new HashSet<>();
         Set<String> roomAmenities = new HashSet<>();
 
+        // define the priority order to consider when resolving for amenities
         List<Class<?>> priorityOrder = List.of(PaperfliesHotelResult.class, PatagoniaHotelResult.class, AcmeHotelResult.class);
 
         for (Class<?> prioritizedType : priorityOrder) {
@@ -312,6 +314,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
         Set<HotelImage> amenitiesImages = new HashSet<>();
         Set<HotelImage> roomImages = new HashSet<>();
 
+        // define the priority order to consider when resolving for images
         List<Class<?>> priorityOrder = List.of(PaperfliesHotelResult.class, PatagoniaHotelResult.class);
 
         for (Class<?> prioritizedType : priorityOrder) {
