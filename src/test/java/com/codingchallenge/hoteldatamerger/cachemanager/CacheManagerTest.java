@@ -81,7 +81,7 @@ class CacheManagerTest {
 
         String cacheKey = cacheManager.buildCacheKey(destinationIDs, hotelIDs);
 
-        assertEquals("DEST:::[Dest1, Dest2]|HTL:::[Hotel1]", cacheKey);
+        assertEquals("DEST:::Dest1_Dest2|HTL:::Hotel1", cacheKey);
     }
 }
 
