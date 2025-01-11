@@ -12,6 +12,9 @@ COPY src ./src
 # Build the application
 RUN mvn package -DskipTests
 
+# Run tests
+RUN mvn test
+
 # Stage 2: Run
 FROM eclipse-temurin:23.0.1_11-jre-alpine AS prod
 WORKDIR /app
