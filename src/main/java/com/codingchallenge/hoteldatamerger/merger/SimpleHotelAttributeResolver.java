@@ -400,7 +400,7 @@ public class SimpleHotelAttributeResolver implements HotelAttributeResolver {
                         for (String condition : paperfliesHotelResult.getBookingConditions()) {
                             if (condition != null && !condition.isBlank()) {
                                 String[] splits = condition.split("===");
-                                for(String split: splits) {
+                                for (String split : splits) {
                                     bookingConditions.add(StringUtils.capitalize(split.strip()));
                                 }
                             }
