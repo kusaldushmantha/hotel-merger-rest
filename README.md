@@ -120,8 +120,28 @@ Service available at: https://kusalk-hotel-merger-api-dbcnr.ondigitalocean.app/a
 
 Examples
 
-* Return all merged hotels: https://kusalk-hotel-merger-api-dbcnr.ondigitalocean.app/api/v1/hotels
-* Return hotels after filtering with `destinationIDs` : https://kusalk-hotel-merger-api-dbcnr.ondigitalocean.app/api/v1/hotels?destinationIDs=5432,1122
-* Return hotels after filtering with `hotelIDs` : https://kusalk-hotel-merger-api-dbcnr.ondigitalocean.app/api/v1/hotels?hotelIDs=SjyX,iJhz 
-* Returns a single specified hotel by ID : https://kusalk-hotel-merger-api-dbcnr.ondigitalocean.app/api/v1/hotels/SjyX
-* With limits and offsets : https://kusalk-hotel-merger-api-dbcnr.ondigitalocean.app/api/v1/hotels?hotelIDs=SjyX,iJhz&destinationIDs=5432,1122&limit=1&offset=1
+* Return all merged hotels
+  ```
+  curl -X GET "https://kusalk-hotel-merger-api-dbcnr.ondigitalocean.app/api/v1/hotels" \
+  -H "Accept: application/json" | jq
+  ```
+* Return hotels after filtering with `destinationIDs` : 
+  ```
+  curl -X GET "https://kusalk-hotel-merger-api-dbcnr.ondigitalocean.app/api/v1/hotels?destinationIDs=5432,1122" \
+  -H "Accept: application/json" | jq
+  ```
+* Return hotels after filtering with `hotelIDs` : 
+  ```
+  curl -X GET "https://kusalk-hotel-merger-api-dbcnr.ondigitalocean.app/api/v1/hotels?hotelIDs=SjyX,iJhz" \
+  -H "Accept: application/json" | jq
+  ```
+* Returns a single specified hotel by ID :
+  ```
+  curl -X GET "https://kusalk-hotel-merger-api-dbcnr.ondigitalocean.app/api/v1/hotels/iJhz" \
+  -H "Accept: application/json" | jq
+  ```
+* With limits and offsets : 
+  ```
+  curl -X GET "https://kusalk-hotel-merger-api-dbcnr.ondigitalocean.app/api/v1/hotels?hotelIDs=SjyX,iJhz&destinationIDs=5432,1122&limit=1&offset=1" \
+  -H "Accept: application/json" | jq
+  ```
