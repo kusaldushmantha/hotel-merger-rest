@@ -78,7 +78,7 @@ The following assumptions were made during the implementation of this service.
 
 ## How to run locally
 
-This service is built using Maven, Spring Boot and Java v23. The service starts on http://localhost:8080/api/v1/hotels
+This service is built using Maven, Spring Boot and Java v23. The service starts locally on http://localhost:8080/api/v1/hotels
 
 ### Using docker (Recommended)
 
@@ -107,7 +107,8 @@ This service is built using Maven, Spring Boot and Java v23. The service starts 
 ## Deployments and Endpoints
 
 ### Deployment
-* Build pipeline setup with GitHub and DigitalOcean. Any commit to the repo will trigger a build and deploy. 
+* Build pipeline setup with one-click GitHub and DigitalOcean integration. Any commit to the repo will trigger a build and deploy. 
+* NOTE: This deployment uses the lowest tier available and the start-up will be slower sometimes.
 
 ### Endpoints
 
